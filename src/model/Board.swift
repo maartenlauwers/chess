@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import AppKit
 
 typealias File = Int
 typealias Rank = Int
@@ -16,101 +17,23 @@ enum Player {
     case black
 }
 
-enum PieceType {
-    case king
-    case queen
-    case rook
-    case bishop
-    case knight
-    case pawn
-}
-
-struct Piece: Equatable, Identifiable {
-    let id = UUID()
-    let score: UInt8
-    let player: Player
-    let type: PieceType
-    var position: (File, Rank)
-    
-    var file: File {
-        return position.0
-    }
-    var rank: Rank {
-        return position.1
-    }
-    
-    var iconType: IconType {
-        switch player {
-        case .white:
-            switch type {
-            case .king:
-                return .king_white
-            case .queen:
-                return .queen_white
-            case .rook:
-                return .rook_white
-            case .knight:
-                return .knight_white
-            case .bishop:
-                return .bishop_white
-            case .pawn:
-                return .pawn_white
-            }
-        case .black:
-            switch type {
-            case .king:
-                return .king_black
-            case .queen:
-                return .queen_black
-            case .rook:
-                return .rook_black
-            case .knight:
-                return .knight_black
-            case .bishop:
-                return .bishop_black
-            case .pawn:
-                return .pawn_black
-            }
-        }
-    }
-    
-    func toString() -> String {
-        var name = ""
-        switch file {
-        case 1:
-            name = "a"
-        case 2:
-            name = "b"
-        case 3:
-            name = "c"
-        case 4:
-            name = "d"
-        case 5:
-            name = "e"
-        case 6:
-            name = "f"
-        case 7:
-            name = "g"
-        case 8:
-            name = "h"
-        default:
-            return "ERROR: Invalid position"
-        }
-        
-        return "\(name)\(rank)"
-    }
-    
-    static func == (lhs: Self, rhs: Self) -> Bool {
-        return lhs.position == rhs.position
-    }
-}
-
 class Board: ObservableObject {
     
     @Published var pieces = [Piece]()
+    @Published var capturedPieces = [Piece]()
+    
+    var capturedWhitePieces: [Piece] {
+        return capturedPieces.filter({ $0.player == .white })
+    }
+    var capturedBlackPieces: [Piece] {
+        return capturedPieces.filter({ $0.player == .black })
+    }
+    
     @Published var highlightedPositions = [Position]()
     
     var pickedUpPiece: Piece?
+    
+    var currentPlayer: Player = .white
     
     
     // MARK: - Lifecycle
@@ -425,14 +348,23 @@ class Board: ObservableObject {
     }
     
     
+    // MARK: - Audio
+    
+    
+    private func playPieceSound() {
+        NSSound(named: "capture.mp3")?.play()
+    }
+    
+    
     // MARK: - Events
     
     
     func handleTap(at position: Position) {
         if let piece = pickedUpPiece {
             // This tap is setting down the piece.
+            
             guard highlightedPositions.contains(where: { $0 == position }) else {
-                // Invalid position.
+                // Player put the piece back to its original position.
                 pickedUpPiece = nil
                 highlightedPositions.removeAll()
                 return
@@ -448,21 +380,24 @@ class Board: ObservableObject {
             pieces[index].position = position
             
             if let capturedIndex = capturedIndex {
+                capturedPieces.append(pieces[capturedIndex])
                 pieces.remove(at: capturedIndex)
             }
             
+            playPieceSound()
+            
             pickedUpPiece = nil
             highlightedPositions.removeAll()
+            currentPlayer = currentPlayer == .white ? .black : .white
         }
         else {
             // This tap is picking up the piece.
-            guard let piece = getPiece(at: position) else {
+            guard let piece = getPiece(at: position), piece.player == currentPlayer else {
                 return
             }
+            
             pickedUpPiece = piece
             highlightedPositions = moves(for: piece)
         }
-        
-        
     }
 }

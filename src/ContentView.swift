@@ -11,48 +11,72 @@ struct ContentView: View {
     @StateObject var board: Board
     
     var body: some View {
-        HStack(alignment: .top, spacing: 0) {
-            ForEach(1..<10, id: \.self) { file in
-                VStack(spacing: 0) {
-                    if file < 9 {
-                        ForEach(1..<9, id: \.self) { rank in
-                            TileView(board: board, file: file, rank: rank)
+        VStack(alignment: .leading, spacing: 0) {
+            Text("White's turn")
+                .padding(EdgeInsets(top: 0, leading: 8, bottom: 8, trailing: 0))
+            HStack(alignment: .top, spacing: 0) {
+                ForEach(1..<10, id: \.self) { file in
+                    VStack(spacing: 0) {
+                        if file < 9 {
+                            ForEach(1..<9, id: \.self) { rank in
+                                TileView(board: board, file: file, rank: rank)
+                            }
+                            
+                            switch file {
+                            case 1:
+                                LegendView(text: "a")
+                            case 2:
+                                LegendView(text: "b")
+                            case 3:
+                                LegendView(text: "c")
+                            case 4:
+                                LegendView(text: "d")
+                            case 5:
+                                LegendView(text: "e")
+                            case 6:
+                                LegendView(text: "f")
+                            case 7:
+                                LegendView(text: "g")
+                            case 8:
+                                LegendView(text: "h")
+                            default:
+                                EmptyView()
+                            }
                         }
-                        
-                        switch file {
-                        case 1:
-                            LegendView(text: "a")
-                        case 2:
-                            LegendView(text: "b")
-                        case 3:
-                            LegendView(text: "c")
-                        case 4:
-                            LegendView(text: "d")
-                        case 5:
-                            LegendView(text: "e")
-                        case 6:
-                            LegendView(text: "f")
-                        case 7:
-                            LegendView(text: "g")
-                        case 8:
-                            LegendView(text: "h")
-                        default:
-                            EmptyView()
+                        else {
+                            ForEach(1..<9) { rank in
+                                let reversedRank = (8 - rank) + 1
+                                LegendView(text: "\(reversedRank)")
+                                    .frame(width: 44, height: 77, alignment: .leading)
+                                    .padding(EdgeInsets(top: 0, leading: 8, bottom: 0, trailing: 0))
+                            }
                         }
                     }
-                    else {
-                        ForEach(1..<9) { rank in
-                            let reversedRank = (8 - rank) + 1
-                            LegendView(text: "\(reversedRank)")
-                                .frame(width: 44, height: 77, alignment: .leading)
-                                .padding(EdgeInsets(top: 0, leading: 8, bottom: 0, trailing: 0))
-                        }
-                    }
+                    .padding(0)
                 }
-                .padding(0)
             }
+            .frame(width: 640, height: 640, alignment: .leading)
+            
+            VStack(alignment: .leading, spacing: 0) {
+                HStack {
+                    ForEach(board.capturedWhitePieces, id: \.self) { piece in
+                        ViewIcon(iconType: .constant(piece.iconType))
+                            .padding(1)
+                    }
+                    Spacer()
+                }
+                
+                HStack {
+                    ForEach(board.capturedBlackPieces, id: \.self) { piece in
+                        ViewIcon(iconType: .constant(piece.iconType))
+                            .padding(1)
+                    }
+                    Spacer()
+                }
+            }
+            .padding()
         }
-        .frame(width: 640, height: 640, alignment: .center)
+        .frame(width: 640, height: 740, alignment: .leading)
     }
 }
 

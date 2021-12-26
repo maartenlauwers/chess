@@ -14,6 +14,8 @@
 		FE3BEE432777A51A00D01FAC /* Paintcode.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE3BEE422777A51A00D01FAC /* Paintcode.swift */; };
 		FE3BEE452777A6FB00D01FAC /* ViewIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE3BEE442777A6FB00D01FAC /* ViewIcon.swift */; };
 		FE3BEE482777AE7200D01FAC /* Board.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE3BEE472777AE7200D01FAC /* Board.swift */; };
+		FE3BEE4C2778C16000D01FAC /* capture.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = FE3BEE4B2778C16000D01FAC /* capture.mp3 */; };
+		FE3BEE4E2778CA4E00D01FAC /* Piece.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE3BEE4D2778CA4E00D01FAC /* Piece.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +28,8 @@
 		FE3BEE422777A51A00D01FAC /* Paintcode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Paintcode.swift; path = paintcode/Paintcode.swift; sourceTree = "<group>"; };
 		FE3BEE442777A6FB00D01FAC /* ViewIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewIcon.swift; sourceTree = "<group>"; };
 		FE3BEE472777AE7200D01FAC /* Board.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Board.swift; sourceTree = "<group>"; };
+		FE3BEE4B2778C16000D01FAC /* capture.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = capture.mp3; sourceTree = "<group>"; };
+		FE3BEE4D2778CA4E00D01FAC /* Piece.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Piece.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -44,6 +48,7 @@
 			children = (
 				FE3BEE422777A51A00D01FAC /* Paintcode.swift */,
 				FE3BEE412777A50B00D01FAC /* src */,
+				FE3BEE492778C16000D01FAC /* resources */,
 				FE3BEE362777A01400D01FAC /* Assets.xcassets */,
 				FE3BEE3B2777A01400D01FAC /* Chess.entitlements */,
 				FE3BEE382777A01400D01FAC /* Preview Content */,
@@ -82,8 +87,25 @@
 			isa = PBXGroup;
 			children = (
 				FE3BEE472777AE7200D01FAC /* Board.swift */,
+				FE3BEE4D2778CA4E00D01FAC /* Piece.swift */,
 			);
 			path = model;
+			sourceTree = "<group>";
+		};
+		FE3BEE492778C16000D01FAC /* resources */ = {
+			isa = PBXGroup;
+			children = (
+				FE3BEE4A2778C16000D01FAC /* sound */,
+			);
+			path = resources;
+			sourceTree = "<group>";
+		};
+		FE3BEE4A2778C16000D01FAC /* sound */ = {
+			isa = PBXGroup;
+			children = (
+				FE3BEE4B2778C16000D01FAC /* capture.mp3 */,
+			);
+			path = sound;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -144,6 +166,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FE3BEE4C2778C16000D01FAC /* capture.mp3 in Resources */,
 				FE3BEE3A2777A01400D01FAC /* Preview Assets.xcassets in Resources */,
 				FE3BEE372777A01400D01FAC /* Assets.xcassets in Resources */,
 			);
@@ -158,6 +181,7 @@
 			files = (
 				FE3BEE432777A51A00D01FAC /* Paintcode.swift in Sources */,
 				FE3BEE452777A6FB00D01FAC /* ViewIcon.swift in Sources */,
+				FE3BEE4E2778CA4E00D01FAC /* Piece.swift in Sources */,
 				FE3BEE482777AE7200D01FAC /* Board.swift in Sources */,
 				FE3BEE352777A01200D01FAC /* ContentView.swift in Sources */,
 				FE3BEE332777A01200D01FAC /* ChessApp.swift in Sources */,
