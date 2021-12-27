@@ -23,6 +23,8 @@ struct Piece: Equatable, Hashable {
     let type: PieceType
     var position: (File, Rank)
     
+    var inCheck = false
+    
     var file: File {
         return position.0
     }
@@ -65,7 +67,7 @@ struct Piece: Equatable, Hashable {
         }
     }
     
-    func toString() -> String {
+    func positionToString() -> String {
         var name = ""
         switch file {
         case 1:
@@ -89,6 +91,28 @@ struct Piece: Equatable, Hashable {
         }
         
         return "\(name)\(rank)"
+    }
+    
+    func toString() -> String {
+        switch type {
+        case .king:
+            return "k \(positionToString())"
+            
+        case .queen:
+            return "q \(positionToString())"
+            
+        case .rook:
+            return "r \(positionToString())"
+            
+        case .knight:
+            return "n \(positionToString())"
+            
+        case .bishop:
+            return "b \(positionToString())"
+            
+        case .pawn:
+            return positionToString()
+        }
     }
     
     

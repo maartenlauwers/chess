@@ -105,28 +105,49 @@ struct TileView: View {
     
     var body: some View {
         ZStack {
-            Rectangle()
-                .fill(boardColor)
-                .padding(0)
-                .onTapGesture {
-                    board.handleTap(at: (file, reversedRank))
-                }
+            
             
             if let piece = board.getPiece(at: (file, reversedRank)) {
+                if piece.inCheck {
+                    Rectangle()
+                        .fill(.red)
+                        .padding(0)
+                        .onTapGesture {
+                            board.handleTap(at: (file, reversedRank))
+                        }
+                }
+                else {
+                    Rectangle()
+                        .fill(boardColor)
+                        .padding(0)
+                        .onTapGesture {
+                            board.handleTap(at: (file, reversedRank))
+                        }
+                }
+                
                 ViewIcon(iconType: .constant(piece.iconType))
                     .onTapGesture {
                         board.handleTap(at: (file, reversedRank))
                     }
                     .padding(4)
-                    .border(isHighlighted ? .green : .clear)
+                    //.border(isHighlighted ? .green : .clear)
             }
-            else if isHighlighted {
-                Circle()
-                    .fill(Color.green)
-                    .padding(32)
+            else {
+                Rectangle()
+                    .fill(boardColor)
+                    .padding(0)
                     .onTapGesture {
                         board.handleTap(at: (file, reversedRank))
                     }
+                
+                if isHighlighted {
+                    Circle()
+                        .fill(Color.green)
+                        .padding(32)
+                        .onTapGesture {
+                            board.handleTap(at: (file, reversedRank))
+                        }
+                }
             }
         }
         .padding(0)

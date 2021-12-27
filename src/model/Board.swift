@@ -85,6 +85,18 @@ class Board: ObservableObject {
         return pieces.first(where: { $0.file == position.0 && $0.rank == position.1 })
     }
     
+    func findPiece(of type: PieceType, player: Player) -> Piece? {
+        return pieces.first(where: { $0.type == type && $0.player == player })
+    }
+    
+    func indexOfPiece(piece: Piece) -> Int? {
+        return pieces.firstIndex(where: { $0 == piece })
+    }
+    
+    func indexOfPiece(at position: Position) -> Int? {
+        return pieces.firstIndex(where: { $0.file == position.0 && $0.rank == position.1 })
+    }
+    
     /// Check which of these positions are actually valid, that
     /// is:
     /// * Free
@@ -115,17 +127,7 @@ class Board: ObservableObject {
             positions = movesForRook(with: piece)
             
         case .knight:
-            positions = [
-                (piece.file + 1, piece.rank + 2),
-                (piece.file + 1, piece.rank - 2),
-                (piece.file + 2, piece.rank + 1),
-                (piece.file + 2, piece.rank - 1),
-                (piece.file - 1, piece.rank + 2),
-                (piece.file - 1, piece.rank - 2),
-                (piece.file - 2, piece.rank + 1),
-                (piece.file - 2, piece.rank - 1),
-            ]
-            positions = positions.filter({ isOnBoard($0) })
+            positions = movesForKnight(with: piece)
             
         case .bishop:
             positions = movesForBishop(with: piece)
@@ -168,6 +170,20 @@ class Board: ObservableObject {
         // Filter out invalid moves.
         positions = positions.filter({ canMove(piece, to: $0)})
         return positions
+    }
+    
+    func movesForKnight(with piece: Piece) -> [Position] {
+        let positions = [
+            (piece.file + 1, piece.rank + 2),
+            (piece.file + 1, piece.rank - 2),
+            (piece.file + 2, piece.rank + 1),
+            (piece.file + 2, piece.rank - 1),
+            (piece.file - 1, piece.rank + 2),
+            (piece.file - 1, piece.rank - 2),
+            (piece.file - 2, piece.rank + 1),
+            (piece.file - 2, piece.rank - 1),
+        ]
+        return positions.filter({ isOnBoard($0) })
     }
     
     func movesForBishop(with piece: Piece) -> [Position] {
@@ -333,9 +349,87 @@ class Board: ObservableObject {
         }
     }
     
+    func checkKingInCheck() {
+        if
+            let whiteKing = findPiece(of: .king, player: .white),
+            let index = indexOfPiece(piece: whiteKing) {
+            pieces[index].inCheck = isInCheck(piece: whiteKing)
+        }
+        if
+            let blackKing = findPiece(of: .king, player: .black),
+            let index = indexOfPiece(piece: blackKing) {
+            pieces[index].inCheck = isInCheck(piece: blackKing)
+        }
+    }
+    
     func isInCheck(piece: Piece) -> Bool {
+        let enemyPlayer: Player = piece.player == .white ? .black : .white
+        
+        for position in movesForBishop(with: piece) {
+            if
+                let pieceAtPosition = getPiece(at: position),
+                pieceAtPosition.type == .bishop || pieceAtPosition.type == .queen,
+                pieceAtPosition.player == enemyPlayer {
+                return true
+            }
+        }
+        for position in movesForRook(with: piece) {
+            if
+                let pieceAtPosition = getPiece(at: position),
+                pieceAtPosition.type == .rook || pieceAtPosition.type == .queen,
+                pieceAtPosition.player == enemyPlayer {
+                return true
+            }
+        }
+        for position in movesForKnight(with: piece) {
+            if
+                let pieceAtPosition = getPiece(at: position),
+                pieceAtPosition.type == .knight,
+                pieceAtPosition.player == enemyPlayer {
+                return true
+            }
+        }
+        
+        switch piece.player {
+        case .white:
+            if
+                let pieceAtPosition = getPiece(at: (piece.file - 1, piece.rank + 1)),
+                pieceAtPosition.type == .pawn,
+                pieceAtPosition.player == enemyPlayer {
+                return true
+            }
+            if
+                let pieceAtPosition = getPiece(at: (piece.file + 1, piece.rank + 1)),
+                pieceAtPosition.type == .pawn,
+                pieceAtPosition.player == enemyPlayer {
+                return true
+            }
+            
+        case .black:
+            if
+                let pieceAtPosition = getPiece(at: (piece.file - 1, piece.rank - 1)),
+                pieceAtPosition.type == .pawn,
+                pieceAtPosition.player == enemyPlayer {
+                return true
+            }
+            if
+                let pieceAtPosition = getPiece(at: (piece.file + 1, piece.rank - 1)),
+                pieceAtPosition.type == .pawn,
+                pieceAtPosition.player == enemyPlayer {
+                return true
+            }
+        }
+        
         return false
     }
+    
+    // TODO: Determine game over
+    //
+    // 1. Check if the king can perform any of its valid moves to escape the check.
+    // 2. For every of our pieces, check if it can capture the checking piece (check if any of its valid move positions matches the checking piece position)
+    // 3. For every of our pieces, check if it can block the checking piece. 
+    
+    
     
     
     // MARK: - UI Helper
@@ -370,25 +464,49 @@ class Board: ObservableObject {
                 return
             }
             
-            guard let index = pieces.firstIndex(where: { $0.file == piece.file && $0.rank == piece.rank }) else {
+            guard let index = indexOfPiece(piece: piece) else {
                 return
             }
             
+            // Perform the move, check if the king is in check. If not, we're
+            // good. If yes, undo the move.
+            
             // Remove any captured piece
-            let capturedIndex = pieces.firstIndex(where: { $0.file == position.0 && $0.rank == position.1 })
+            let capturedIndex = indexOfPiece(at: position)
+            let capturedPiece = getPiece(at: position)
             
             pieces[index].position = position
+            
+            // Write out the move.
+            print("Move: \(pieces[index].toString())")
             
             if let capturedIndex = capturedIndex {
                 capturedPieces.append(pieces[capturedIndex])
                 pieces.remove(at: capturedIndex)
             }
             
-            playPieceSound()
-            
-            pickedUpPiece = nil
-            highlightedPositions.removeAll()
-            currentPlayer = currentPlayer == .white ? .black : .white
+            // Check if the move we're about to make puts our king in check.
+            // If so, undo the move.
+            if let king = findPiece(of: .king, player: currentPlayer) {
+                if isInCheck(piece: king) {
+                    pieces[index].position = piece.position
+                    if let capturedPiece = capturedPiece {
+                        pieces.append(capturedPiece)
+                        capturedPieces.removeLast()
+                    }
+                }
+                else {
+                    playPieceSound()
+                    currentPlayer = currentPlayer == .white ? .black : .white
+                }
+                
+                checkKingInCheck()
+                pickedUpPiece = nil
+                highlightedPositions.removeAll()
+            }
+            else {
+                assertionFailure("ERROR: Could not find the king on the board yet the game is ongoing.")
+            }
         }
         else {
             // This tap is picking up the piece.
